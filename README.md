@@ -10,7 +10,7 @@ Note: These tools are old and unmaintained and may contain bugs. You should real
 
 ## Quick start
 
-* [Download the latest release](https://github.com/handsomematt/dont-starve-tools/releases).
+* [Download the latest release](https://github.com/zxcvbnm3057/dont-starve-tools/releases).
 
 ## Contributing
 
@@ -18,4 +18,4 @@ If you would like to contribute bug fixes and the likes, just make a pull reques
 
 ## Copyright and license
 
-Copyright 2013-2018 Matt Stevens under [the MIT license](LICENSE).
+Copyright 2013-2020 Matt Stevens under [the MIT license](LICENSE).
