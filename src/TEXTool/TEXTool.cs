@@ -25,15 +25,14 @@ SOFTWARE.
 */
 #endregion License
 
+using KleiLib;
+using SquishNET;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using KleiLib;
-using SquishNET;
-
-using System.Collections.Generic;
 using System.Xml;
 
 namespace TEXTool
@@ -60,13 +59,14 @@ namespace TEXTool
     {
         public string FileName { get; set; }
         public string Platform { get; set; }
-        public string Format   { get; set; }
-        public string Size     { get; set; }
-        public string Mipmaps  { get; set; }
-        public string TexType  { get; set; }
-        public bool   PreCave  { get; set; }
+        public string Format { get; set; }
+        public string Size { get; set; }
+        public string Mipmaps { get; set; }
+        public string TexType { get; set; }
+        public bool PreCave { get; set; }
 
-        public FileOpenedEventArgs(string filename) {
+        public FileOpenedEventArgs(string filename)
+        {
             this.FileName = filename;
         }
     }
@@ -91,12 +91,14 @@ namespace TEXTool
     {
         public TEXFile CurrentFile;
         public Bitmap CurrentFileRaw;
+        public static string CurrentFileName="";
 
         public event FileOpenedEventHandler FileOpened;
         public event FileRawImageEventHandler FileRawImage;
 
         public event ProgressUpdate OnProgressUpdate;
 
+        public static List<KleiTextureAtlasElement> atlasElements = new List<KleiTextureAtlasElement>();
 
         #region Util
 
@@ -143,6 +145,7 @@ namespace TEXTool
 
         public void OpenFile(string filename, Stream stream)
         {
+            CurrentFileName = filename;
             CurrentFile = new TEXFile(stream);
 
             var EArgs = new FileOpenedEventArgs(filename);
@@ -183,8 +186,7 @@ namespace TEXTool
             string fileDir = fileInfo.DirectoryName;
             string fileNameWithoutExt = fileInfo.Name.Replace(fileInfo.Extension, "");
             string atlasDataPath = fileDir + @"\" + fileNameWithoutExt + "." + atlasExt;
-            List<KleiTextureAtlasElement> atlasElements = new List<KleiTextureAtlasElement>();
-            
+
             if (File.Exists(atlasDataPath))
             {
                 atlasElements = ReadAtlasData(atlasDataPath, mipmap.Width, mipmap.Height);
@@ -204,12 +206,9 @@ namespace TEXTool
                     byte a = imgReader.ReadByte();
                     pt.SetPixel(x, y, Color.FromArgb(a, r, g, b));
                 }
-                if (OnProgressUpdate != null)
-                {
-                    OnProgressUpdate(y * 100 / mipmap.Height);
-                }
+                OnProgressUpdate?.Invoke(y * 100 / mipmap.Height);
             }
-            
+
             pt.RotateFlip(RotateFlipType.RotateNoneFlipY);
 
             CurrentFileRaw = pt;
@@ -254,8 +253,8 @@ namespace TEXTool
                     double margin = 0.5;
                     imgHmin = Convert.ToInt16(u1 * mipmapWidth - margin);
                     imgHmax = Convert.ToInt16(u2 * mipmapWidth - margin);
-                    imgVmin = Convert.ToInt16(v1 * mipmapHeight - margin);
-                    imgVmax = Convert.ToInt16(v2 * mipmapHeight - margin);
+                    imgVmin = Convert.ToInt16(v2 * mipmapHeight - margin);
+                    imgVmax = Convert.ToInt16(v1 * mipmapHeight - margin);
 
                     AtlasElements.Add(new KleiTextureAtlasElement(name, imgHmin, imgHmax, imgVmin, imgVmax));
                 }
@@ -270,14 +269,22 @@ namespace TEXTool
 
 
 
-        public void SaveFile(string FilePath)
+        public void SaveFileAll(string FilePath)
         {
             CurrentFileRaw.Save(FilePath);
         }
 
-        public void SaveFile(Stream fileStream)
+        public void SaveFileSingle(string FilePath, KleiTextureAtlasElement arg)
         {
-            CurrentFileRaw.Save(fileStream, System.Drawing.Imaging.ImageFormat.Png);
+            Rectangle cropRect = new Rectangle(arg.ImgHmin, arg.ImgVmin, arg.ImgHmax - arg.ImgHmin, arg.ImgVmax - arg.ImgVmin);
+            Bitmap SigleFile = new Bitmap(arg.ImgHmax - arg.ImgHmin, arg.ImgVmax - arg.ImgVmin);
+
+            using (Graphics g = Graphics.FromImage(SigleFile))
+            {
+                g.DrawImage(CurrentFileRaw, 0, 0, cropRect, GraphicsUnit.Pixel);
+
+            }
+            SigleFile.Save(FilePath);
         }
 
         protected virtual void OnOpenFile(FileOpenedEventArgs args)

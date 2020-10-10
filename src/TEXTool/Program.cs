@@ -41,7 +41,8 @@ namespace TEXTool
         {
             bool ConsoleMode = args.Length > 1;
 
-            if (ConsoleMode) {
+            if (ConsoleMode)
+            {
                 AllocConsole();
 
                 var inputFile = args[0];
@@ -49,10 +50,13 @@ namespace TEXTool
 
                 var tool = new TEXTool();
                 tool.OpenFile(inputFile, new FileStream(inputFile, FileMode.Open, FileAccess.Read));
-                tool.FileOpened += (sender, ev) => {
-                    tool.SaveFile(outputFile);
+                tool.FileOpened += (sender, ev) =>
+                {
+                    tool.SaveFileAll(outputFile);
                 };
-            } else {
+            }
+            else
+            {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
 

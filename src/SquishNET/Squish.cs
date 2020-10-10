@@ -80,7 +80,7 @@ namespace SquishNET
             CompressImageFunction = NativeSquish_x64.Squish.CompressImage;
             DecompressImageFunction = NativeSquish_x64.Squish.DecompressImage;
         }
-        
+
         /// <summary>
         /// Returns the final size in bytes of DXT data compressed with the parameters specified in <paramref name="flags"/>.
         /// </summary>

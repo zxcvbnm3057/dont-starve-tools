@@ -26,13 +26,11 @@ SOFTWARE.
 #endregion License
 
 using System;
-using System.Reflection;
-using System.Windows.Forms;
-
 using System.ComponentModel;
-
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Reflection;
+using System.Windows.Forms;
 
 namespace TEXTool
 {
@@ -40,6 +38,7 @@ namespace TEXTool
     {
         public TEXTool Tool;
         public ProgressForm ProgressForm;
+        private KleiTextureAtlasElement element_selected;
 
         GraphicsPath graphicsPath;
         float offsetX = 0, offsetY = 0, scaleX = 1, scaleY = 1;
@@ -63,7 +62,7 @@ namespace TEXTool
                 }
             }
             atlasElementBorderColors.ComboBox.SelectedItem = "Black";
-            
+
             atlasElementsListToolStripComboBox.ComboBox.DisplayMember = "Name";
         }
 
@@ -88,7 +87,7 @@ namespace TEXTool
                     atlasElementsListToolStripComboBox.Items.Add(el);
                 }
             }
-            
+
             imageBox.Image = e.Image;
             zoomLevelToolStripComboBox.Text = string.Format("{0}%", imageBox.Zoom);
         }
@@ -123,21 +122,35 @@ namespace TEXTool
             }
         }
 
-        private void SaveFileDialog()
+        private void SaveFileAll()
         {
-            if (Tool.CurrentFile == null)
-                return;
+            string FileName = SaveFileDialog(TEXTool.CurrentFileName);
+            if (FileName != null)
+                Tool.SaveFileAll(FileName);
+        }
+        
+        private void SaveFileSingle(string PictureName)
+        {
+            string FileName = SaveFileDialog(PictureName);
+            if (FileName != null)
+                Tool.SaveFileSingle(FileName, element_selected);
+        }
 
-            using (SaveFileDialog dialog = new SaveFileDialog())
+        private String SaveFileDialog(string DefaultFilename)
+        {
+            if (Tool.CurrentFile != null)
+                using (SaveFileDialog dialog = new SaveFileDialog())
             {
-                dialog.Filter = "All Supported Images (*.bmp;*.dib;*.rle;*.gif;*.jpg;*.png)|*.bmp;*.dib;*.rle;*.gif;*.jpg;*.png|Bitmaps (*.bmp;*.dib;*.rle)|*.bmp;*.dib;*.rle|Graphics Interchange Format (*.gif)|*.gif|Joint Photographic Experts (*.jpg)|*.jpg|Portable Network Graphics (*.png)|*.png|All Files (*.*)|*.*";
+                    dialog.FileName = System.IO.Path.GetFileNameWithoutExtension(DefaultFilename) + ".png";
+                    dialog.Filter = "All Supported Images (*.bmp;*.dib;*.rle;*.gif;*.jpg;*.png)|*.bmp;*.dib;*.rle;*.gif;*.jpg;*.png|Bitmaps (*.bmp;*.dib;*.rle)|*.bmp;*.dib;*.rle|Graphics Interchange Format (*.gif)|*.gif|Joint Photographic Experts (*.jpg)|*.jpg|Portable Network Graphics (*.png)|*.png|All Files (*.*)|*.*";
                 dialog.DefaultExt = "png";
 
                 if (dialog.ShowDialog(this) == DialogResult.OK)
                 {
-                    Tool.SaveFile(dialog.FileName);
+                    return dialog.FileName;
                 }
             }
+            return null;
         }
 
         private void FillZoomLevelComboBox()
@@ -159,7 +172,12 @@ namespace TEXTool
 
         private void saveToolStripButton_Click(object sender, EventArgs e)
         {
-            SaveFileDialog();
+            SaveFileAll();
+        }
+
+        private void singlesaveToolStripButton_Click(object sender, EventArgs e)
+        {
+            SaveFileSingle(((KleiTextureAtlasElement)atlasElementsListToolStripComboBox.ComboBox.SelectedItem).Name);
         }
 
         private void fitToolStripButton_Click(object sender, EventArgs e)
@@ -202,12 +220,13 @@ namespace TEXTool
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            switch (keyData) {
+            switch (keyData)
+            {
                 case Keys.Control | Keys.O:
                     OpenFileDialog();
                     break;
                 case Keys.Control | Keys.S:
-                    SaveFileDialog();
+                    SaveFileAll();
                     break;
                 case Keys.Control | Keys.Add:
                     imageBox.ZoomIn();
@@ -264,13 +283,35 @@ namespace TEXTool
                 imageBox.Zoom = z;
             }
         }
-        
+
+        private void imageBox_Click(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                if (this.imageBox != null & TEXTool.atlasElements.Count!=0)
+                {
+                    foreach (KleiTextureAtlasElement element in TEXTool.atlasElements)
+                    {
+                        int X_Min = element.ImgHmin;
+                        int X_Max = element.ImgHmax;
+                        int Y_Min = element.ImgVmin;
+                        int Y_Max = element.ImgVmax;
+                        float ClickPoint_X = (e.Location.X - offsetX)/ scaleX;
+                        float ClickPoint_Y = (e.Location.Y - offsetY)/ scaleY;
+                        if (ClickPoint_X> X_Min & ClickPoint_X<X_Max &ClickPoint_Y>Y_Min&ClickPoint_Y<Y_Max)
+                            atlasElementsListToolStripComboBox.ComboBox.SelectedIndex = atlasElementsListToolStripComboBox.ComboBox.FindString(element.Name);
+                    }                    
+                }
+            }
+        }
+
         private void atlasElementsListToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             var element = (KleiTextureAtlasElement)atlasElementsListToolStripComboBox.ComboBox.SelectedItem;
             if (element != null)
             {
                 DrawRectangle(element);
+                element_selected = element;
             }
         }
 
@@ -331,8 +372,8 @@ namespace TEXTool
                 ProgressForm.Dispose();
             }
         }
-        
+
         #endregion
-        
+
     }
 }

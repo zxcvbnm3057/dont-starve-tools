@@ -25,6 +25,8 @@ SOFTWARE.
 */
 #endregion License
 
+using KleiLib;
+using SquishNET;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -33,8 +35,6 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using KleiLib;
-using SquishNET;
 
 namespace TEXCreator
 {
@@ -60,7 +60,8 @@ namespace TEXCreator
             }
         }
 
-        struct Mipmap {
+        struct Mipmap
+        {
             public ushort Width;
             public ushort Height;
             public ushort Pitch;
@@ -84,7 +85,8 @@ namespace TEXCreator
 
             Mipmaps.Add(GenerateMipmap(inputImage, PixelFormat, preMultiplyAlpha));
 
-            if (GenerateMipmaps) {
+            if (GenerateMipmaps)
+            {
                 var width = inputImage.Width;
                 var height = inputImage.Height;
 
@@ -135,7 +137,8 @@ namespace TEXCreator
                 {
                     Color c = inputImage.GetPixel(x, y);
 
-                    if (preMultiplyAlpha) {
+                    if (preMultiplyAlpha)
+                    {
                         float alphamod = (float)c.A / 255.0f; // Normalize.
 
                         var newR = (byte)(c.R * alphamod);
@@ -240,7 +243,7 @@ namespace TEXCreator
         private void PopulateComboboxes()
         {
             foreach (TEXFile.PixelFormat format in Enum.GetValues(typeof(TEXFile.PixelFormat)))
-                if ( format != TEXFile.PixelFormat.Unknown )
+                if (format != TEXFile.PixelFormat.Unknown)
                     pixelFormatComboBox.Items.Add(format);
             pixelFormatComboBox.Text = TEXFile.PixelFormat.DXT5.ToString(); // Default value of DXT5.
 
@@ -249,7 +252,7 @@ namespace TEXCreator
             textureTypeComboBox.Text = EnumHelper<TEXFile.TextureType>.GetEnumDescription(TEXFile.TextureType.OneD.ToString());
 
             foreach (InterpolationMode mode in Enum.GetValues(typeof(InterpolationMode)))
-                if ( mode != InterpolationMode.Invalid )
+                if (mode != InterpolationMode.Invalid)
                     mipmapFilterComboBox.Items.Add(mode);
             mipmapFilterComboBox.Text = InterpolationMode.Default.ToString();
         }

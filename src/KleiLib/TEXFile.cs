@@ -105,8 +105,8 @@ namespace KleiLib
                 Console.WriteLine(Convert.ToString(header, 2));
 
                 File.Header.Platform = header & 15;
-                File.Header.PixelFormat = (header >> 4)  & 31;
-                File.Header.TextureType = (header >> 9)  & 15;
+                File.Header.PixelFormat = (header >> 4) & 31;
+                File.Header.TextureType = (header >> 9) & 15;
                 File.Header.NumMips = (header >> 13) & 31;
                 File.Header.Flags = (header >> 18) & 3;
                 File.Header.Remainder = (header >> 20) & 4095;
@@ -126,8 +126,10 @@ namespace KleiLib
         {
             Mipmap[] mipmapArray = new Mipmap[File.Header.NumMips];
 
-            using (var reader = new BinaryReader(new MemoryStream(File.Raw))) {
-                for (int i = 0; i < File.Header.NumMips; i++) {
+            using (var reader = new BinaryReader(new MemoryStream(File.Raw)))
+            {
+                for (int i = 0; i < File.Header.NumMips; i++)
+                {
                     mipmapArray[i] = new Mipmap();
                     mipmapArray[i].Width = reader.ReadUInt16();
                     mipmapArray[i].Height = reader.ReadUInt16();
@@ -147,7 +149,8 @@ namespace KleiLib
             Mipmap[] mipmapArray = new Mipmap[File.Header.NumMips];
 
             using (var reader = new BinaryReader(new MemoryStream(File.Raw)))
-                for (int i = 0; i < File.Header.NumMips; i++) {
+                for (int i = 0; i < File.Header.NumMips; i++)
+                {
                     mipmapArray[i] = new Mipmap();
                     mipmapArray[i].Width = reader.ReadUInt16();
                     mipmapArray[i].Height = reader.ReadUInt16();
