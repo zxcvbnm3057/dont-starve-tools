@@ -29,6 +29,7 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 
@@ -36,16 +37,15 @@ namespace TEXTool
 {
     public partial class MainForm : Form
     {
-        public TEXTool Tool;
+        public TEXTool Tool = new TEXTool();
         public ProgressForm ProgressForm;
         private KleiTextureAtlasElement element_selected;
 
         GraphicsPath graphicsPath;
         float offsetX = 0, offsetY = 0, scaleX = 1, scaleY = 1;
 
-        public MainForm()
+        public MainForm(string[] args)
         {
-            Tool = new TEXTool();
             Tool.FileOpened += new FileOpenedEventHandler(TEXTool_FileOpened);
             Tool.FileRawImage += new FileRawImageEventHandler(tool_FileRawImage);
             Tool.OnProgressUpdate += tool_OnProgressUpdate;
@@ -64,6 +64,19 @@ namespace TEXTool
             atlasElementBorderColors.ComboBox.SelectedItem = "Black";
 
             atlasElementsListToolStripComboBox.ComboBox.DisplayMember = "Name";
+
+            // Open With..
+            if (args.Length > 0)
+                TEXTool.CurrentFileName = args[0];
+
+            Load += MainForm_Load;
+
+        }
+
+        void MainForm_Load(object sender, EventArgs args)
+        {
+            if (TEXTool.CurrentFileName != "")
+                Tool.OpenFile(TEXTool.CurrentFileName, new FileStream(TEXTool.CurrentFileName, FileMode.Open, FileAccess.Read));
         }
 
         #region
@@ -128,7 +141,7 @@ namespace TEXTool
             if (FileName != null)
                 Tool.SaveFileAll(FileName);
         }
-        
+
         private void SaveFileSingle(string PictureName)
         {
             string FileName = SaveFileDialog(PictureName);
@@ -140,16 +153,16 @@ namespace TEXTool
         {
             if (Tool.CurrentFile != null)
                 using (SaveFileDialog dialog = new SaveFileDialog())
-            {
-                    dialog.FileName = System.IO.Path.GetFileNameWithoutExtension(DefaultFilename) + ".png";
-                    dialog.Filter = "All Supported Images (*.bmp;*.dib;*.rle;*.gif;*.jpg;*.png)|*.bmp;*.dib;*.rle;*.gif;*.jpg;*.png|Bitmaps (*.bmp;*.dib;*.rle)|*.bmp;*.dib;*.rle|Graphics Interchange Format (*.gif)|*.gif|Joint Photographic Experts (*.jpg)|*.jpg|Portable Network Graphics (*.png)|*.png|All Files (*.*)|*.*";
-                dialog.DefaultExt = "png";
-
-                if (dialog.ShowDialog(this) == DialogResult.OK)
                 {
-                    return dialog.FileName;
+                    dialog.FileName = Path.GetFileNameWithoutExtension(DefaultFilename) + ".png";
+                    dialog.Filter = "All Supported Images (*.bmp;*.dib;*.rle;*.gif;*.jpg;*.png)|*.bmp;*.dib;*.rle;*.gif;*.jpg;*.png|Bitmaps (*.bmp;*.dib;*.rle)|*.bmp;*.dib;*.rle|Graphics Interchange Format (*.gif)|*.gif|Joint Photographic Experts (*.jpg)|*.jpg|Portable Network Graphics (*.png)|*.png|All Files (*.*)|*.*";
+                    dialog.DefaultExt = "png";
+
+                    if (dialog.ShowDialog(this) == DialogResult.OK)
+                    {
+                        return dialog.FileName;
+                    }
                 }
-            }
             return null;
         }
 
@@ -288,7 +301,7 @@ namespace TEXTool
         {
             if (e.Button == MouseButtons.Left)
             {
-                if (this.imageBox != null & TEXTool.atlasElements.Count!=0)
+                if (this.imageBox != null & TEXTool.atlasElements.Count != 0)
                 {
                     foreach (KleiTextureAtlasElement element in TEXTool.atlasElements)
                     {
@@ -296,11 +309,14 @@ namespace TEXTool
                         int X_Max = element.ImgHmax;
                         int Y_Min = element.ImgVmin;
                         int Y_Max = element.ImgVmax;
-                        float ClickPoint_X = (e.Location.X - offsetX)/ scaleX;
-                        float ClickPoint_Y = (e.Location.Y - offsetY)/ scaleY;
-                        if (ClickPoint_X> X_Min & ClickPoint_X<X_Max &ClickPoint_Y>Y_Min&ClickPoint_Y<Y_Max)
+                        float ClickPoint_X = (e.Location.X - offsetX) / scaleX;
+                        float ClickPoint_Y = (e.Location.Y - offsetY) / scaleY;
+                        if (ClickPoint_X > X_Min & ClickPoint_X < X_Max & ClickPoint_Y > Y_Min & ClickPoint_Y < Y_Max)
+                        {
                             atlasElementsListToolStripComboBox.ComboBox.SelectedIndex = atlasElementsListToolStripComboBox.ComboBox.FindString(element.Name);
-                    }                    
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -354,7 +370,8 @@ namespace TEXTool
         {
             base.Invoke((Action)delegate
             {
-                ProgressForm.ReportProgress(value);
+                if (ProgressForm != null)
+                    ProgressForm.ReportProgress(value);
             });
         }
 

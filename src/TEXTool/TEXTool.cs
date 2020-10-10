@@ -84,6 +84,7 @@ namespace TEXTool
     }
 
     public delegate void FileOpenedEventHandler(object sender, FileOpenedEventArgs e);
+    public delegate void ImageLoadedEventHandler(object sender, FileOpenedEventArgs e);
     public delegate void FileRawImageEventHandler(object sender, FileRawImageEventArgs e);
     public delegate void ProgressUpdate(int value);
 
@@ -91,9 +92,10 @@ namespace TEXTool
     {
         public TEXFile CurrentFile;
         public Bitmap CurrentFileRaw;
-        public static string CurrentFileName="";
+        public static string CurrentFileName = "";
 
         public event FileOpenedEventHandler FileOpened;
+        public event ImageLoadedEventHandler ImageLoaded;
         public event FileRawImageEventHandler FileRawImage;
 
         public event ProgressUpdate OnProgressUpdate;
@@ -214,6 +216,7 @@ namespace TEXTool
             CurrentFileRaw = pt;
 
             OnRawImage(new FileRawImageEventArgs(pt, atlasElements));
+            OnImageLoaded(EArgs);
         }
 
         private List<KleiTextureAtlasElement> ReadAtlasData(string path, int mipmapWidth, int mipmapHeight)
@@ -290,6 +293,19 @@ namespace TEXTool
         protected virtual void OnOpenFile(FileOpenedEventArgs args)
         {
             FileOpenedEventHandler handler = FileOpened;
+            if (handler != null)
+            {
+                ISynchronizeInvoke target = handler.Target as ISynchronizeInvoke;
+
+                if (target != null && target.InvokeRequired)
+                    target.Invoke(handler, new object[] { this, args });
+                else
+                    handler(this, args);
+            }
+        }
+        protected virtual void OnImageLoaded(FileOpenedEventArgs args)
+        {
+            ImageLoadedEventHandler handler = ImageLoaded;
             if (handler != null)
             {
                 ISynchronizeInvoke target = handler.Target as ISynchronizeInvoke;
