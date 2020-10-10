@@ -210,7 +210,7 @@ namespace TEXTool
 
         private void infoToolStripButton_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start("http://www.dev-zilla.net/kleistudio/");
+            System.Diagnostics.Process.Start("https://github.com/zxcvbnm3057/dont-starve-tools");
         }
 
         #endregion
