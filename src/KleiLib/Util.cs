@@ -25,10 +25,13 @@ SOFTWARE.
 */
 #endregion License
 
+using System.Globalization;
+
 namespace KleiLib
 {
     public static class Util
     {
-
+        // Game formats use US number formatting so that is forced regardless of host region
+        public static readonly CultureInfo GAME_LOCALE = new CultureInfo("en-US");
     }
 }

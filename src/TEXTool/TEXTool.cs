@@ -231,8 +231,8 @@ namespace TEXTool
                 foreach (XmlNode xChild in xNodeElements.ChildNodes)
                 {
                     string name = xChild.Attributes.GetNamedItem("name").Value;
-                    double u1 = Convert.ToDouble(xChild.Attributes.GetNamedItem("u1").Value);
-                    double u2 = Convert.ToDouble(xChild.Attributes.GetNamedItem("u2").Value);
+                    double u1 = Convert.ToDouble(xChild.Attributes.GetNamedItem("u1").Value, Util.GAME_LOCALE);
+                    double u2 = Convert.ToDouble(xChild.Attributes.GetNamedItem("u2").Value, Util.GAME_LOCALE);
 
                     /* !!! IMPORTANT TIP !!!
                      * You may need to invert the y-axis depending on the software you use to check your pixel coordinates. 
@@ -245,8 +245,8 @@ namespace TEXTool
                      */
 
                     /* NORMAL THE Y-AXIS */
-                    double v1 = Convert.ToDouble(xChild.Attributes.GetNamedItem("v1").Value);
-                    double v2 = Convert.ToDouble(xChild.Attributes.GetNamedItem("v2").Value);
+                    double v1 = Convert.ToDouble(xChild.Attributes.GetNamedItem("v1").Value, Util.GAME_LOCALE);
+                    double v2 = Convert.ToDouble(xChild.Attributes.GetNamedItem("v2").Value, Util.GAME_LOCALE);
 
                     /* INVERT THE Y-AXIS */
                     v1 = 1 - v1;
