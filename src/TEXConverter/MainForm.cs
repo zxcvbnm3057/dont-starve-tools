@@ -249,7 +249,7 @@ namespace TEXCreator
 
             foreach (TEXFile.TextureType textype in Enum.GetValues(typeof(TEXFile.TextureType)))
                 textureTypeComboBox.Items.Add(EnumHelper<TEXFile.TextureType>.GetEnumDescription(textype.ToString()));
-            textureTypeComboBox.Text = EnumHelper<TEXFile.TextureType>.GetEnumDescription(TEXFile.TextureType.OneD.ToString());
+            textureTypeComboBox.Text = EnumHelper<TEXFile.TextureType>.GetEnumDescription(TEXFile.TextureType.TwoD.ToString());
 
             foreach (InterpolationMode mode in Enum.GetValues(typeof(InterpolationMode)))
                 if (mode != InterpolationMode.Invalid)
