@@ -54,13 +54,13 @@ namespace KleiLib
         public enum TextureType : uint
         {
             [Description("1D")]
-            OneD = 1,
+            OneD = 0,
             [Description("2D")]
-            TwoD = 2,
+            TwoD = 1,
             [Description("3D")]
-            ThreeD = 3,
+            ThreeD = 2,
             [Description("Cube Mapped")]
-            Cubemap = 4
+            Cubemap = 3
         };
 
         public readonly char[] KTEXHeader = new char[] { 'K', 'T', 'E', 'X' };

@@ -155,27 +155,32 @@ namespace TEXCreator
                 }
 
             byte[] finalImageData = null;
+            int pitch = 0;
 
             switch (pixelFormat)
             {
                 case TEXFile.PixelFormat.DXT1:
                     finalImageData = Squish.CompressImage(rgba, inputImage.Width, inputImage.Height, SquishFlags.Dxt1);
+                    pitch = Squish.GetStorageRequirements(inputImage.Width, 1, SquishFlags.Dxt1);
                     break;
                 case TEXFile.PixelFormat.DXT3:
                     finalImageData = Squish.CompressImage(rgba, inputImage.Width, inputImage.Height, SquishFlags.Dxt3);
+                    pitch = Squish.GetStorageRequirements(inputImage.Width, 1, SquishFlags.Dxt3);
                     break;
                 case TEXFile.PixelFormat.DXT5:
                     finalImageData = Squish.CompressImage(rgba, inputImage.Width, inputImage.Height, SquishFlags.Dxt5);
+                    pitch = Squish.GetStorageRequirements(inputImage.Width, 1, SquishFlags.Dxt5);
                     break;
                 case TEXFile.PixelFormat.ARGB:
                     finalImageData = rgba;
+                    pitch = inputImage.Width * 4;
                     break;
             }
 
             var mipmap = new Mipmap();
             mipmap.Width = (ushort)inputImage.Width;
             mipmap.Height = (ushort)inputImage.Height;
-            mipmap.Pitch = 0;
+            mipmap.Pitch = (ushort)pitch;
             mipmap.ARGBData = finalImageData;
 
             return mipmap;
@@ -249,7 +254,7 @@ namespace TEXCreator
 
             foreach (TEXFile.TextureType textype in Enum.GetValues(typeof(TEXFile.TextureType)))
                 textureTypeComboBox.Items.Add(EnumHelper<TEXFile.TextureType>.GetEnumDescription(textype.ToString()));
-            textureTypeComboBox.Text = EnumHelper<TEXFile.TextureType>.GetEnumDescription(TEXFile.TextureType.OneD.ToString());
+            textureTypeComboBox.Text = EnumHelper<TEXFile.TextureType>.GetEnumDescription(TEXFile.TextureType.TwoD.ToString());
 
             foreach (InterpolationMode mode in Enum.GetValues(typeof(InterpolationMode)))
                 if (mode != InterpolationMode.Invalid)
